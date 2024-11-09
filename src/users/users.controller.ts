@@ -23,6 +23,7 @@ import { CreateCassettesRequestDto } from "./dto/create-cassette-request.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { DeleteCassetteResponseDto } from "./dto/delete-cassette-response.dtd";
 import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
+import { CassetteEntity } from "src/entity/cassette.entity";
 
 @Controller("users")
 @ApiBearerAuth("accessToken")
@@ -32,6 +33,21 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly cassetteService: CassetteService
   ) {}
+
+  @ApiOperation({
+    summary: "카세트 테잎 컬렉션 조회",
+    description: "카세트 테잎 컬렉션을 조회합니다.",
+  })
+  @ApiResponse({
+    status: 200,
+    type: [CassetteEntity],
+  })
+  @Get("/cassettes")
+  async getCassettes(
+    @AccessUser() user: JwtPayload
+  ): Promise<CassetteEntity[]> {
+    return await this.cassetteService.getCassettes(user.id);
+  }
 
   @ApiOperation({
     summary: "카세트 테잎 컬렉션 추가",

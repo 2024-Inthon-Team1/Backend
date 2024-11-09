@@ -20,6 +20,12 @@ export class CassetteService {
     private readonly cassetteRepository: Repository<CassetteEntity>
   ) {}
 
+  async getCassettes(userId: string): Promise<CassetteEntity[]> {
+    return await this.cassetteRepository.find({
+      where: { user: { id: userId } },
+    });
+  }
+
   async createCassette(
     userId: string,
     requestDto: CreateCassettesRequestDto
@@ -39,16 +45,15 @@ export class CassetteService {
   }
 
   async deleteCassette(userId: string, cassetteId: number) {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
     const cassette = await this.cassetteRepository.findOne({
-      where: { id: cassetteId, user },
+      where: { id: cassetteId, user: { id: userId } },
     });
 
     if (!cassette) {
       throw new NotFoundException("cassette 정보를 찾을 수 없습니다.");
     }
 
-    const deleted = await this.cassetteRepository.delete(cassette);
+    const deleted = await this.cassetteRepository.delete(cassette.id);
     if (deleted.affected === 0) {
       throw new InternalServerErrorException("삭제에 실패했습니다.");
     }
