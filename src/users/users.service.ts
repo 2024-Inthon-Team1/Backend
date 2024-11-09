@@ -1,17 +1,19 @@
 import { SignUpRequestDto } from "./../auth/dto/sign-up-request.dto";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersEntity } from "src/entity/users.entity";
 import { Repository } from "typeorm";
 import { UserInfoDto } from "./dto/user-info.dto";
 import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
 import { GetRandomUsersSignatureSongResponseDto } from "./dto/get-random-users-signature-song-response.dto";
+import { FileService } from "src/common/file.service";
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(UsersEntity)
-    private readonly usersRepository: Repository<UsersEntity>
+    private readonly usersRepository: Repository<UsersEntity>,
+    private readonly fileService: FileService
   ) {}
 
   async findOrCreateById(id: string): Promise<UserInfoDto> {
@@ -29,13 +31,21 @@ export class UsersService {
 
   async signup(
     signupRequestDto: SignUpRequestDto,
+    profileImage: Express.Multer.File,
     userId: string
   ): Promise<void> {
+    if (!this.fileService.imagefilter(profileImage)) {
+      throw new BadRequestException("Only image file can be uploaded!");
+    }
+    const profileUrl = await this.fileService.uploadFile(
+      profileImage,
+      "User",
+      "ProfileImage"
+    );
     const {
       sex,
       birthday,
       username,
-      profileUrl,
       signatureSongId,
       signatureSong,
       signatureSongArtist,
@@ -55,7 +65,8 @@ export class UsersService {
 
   async getProfile(userId: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    return new GetProfileResponseDto(user);
+    const profileUrl = this.fileService.makeUrlByFileDir(user.profileUrl);
+    return new GetProfileResponseDto(user, profileUrl);
   }
 
   async getRandomUsersSignatureSong(

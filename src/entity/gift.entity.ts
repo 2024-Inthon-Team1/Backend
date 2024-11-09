@@ -16,6 +16,9 @@ export class GiftEntity extends CommonEntity {
   @Column({ type: "text" })
   letter: string;
 
+  @Column({ type: "tinyint", default: false })
+  isAccepted: boolean;
+
   @OneToMany(() => GiftDetailEntity, (giftDetail) => giftDetail.gift, {
     cascade: true,
   })

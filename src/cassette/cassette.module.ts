@@ -7,6 +7,8 @@ import { GiftDetailEntity } from "src/entity/gift-detail.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CassetteService } from "./cassette.service";
 import { GiftService } from "./gift.service";
+import { ChatGateway } from "src/chat/chat.gateway";
+import { ChatModule } from "src/chat/chat.module";
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { GiftService } from "./gift.service";
       GiftEntity,
       GiftDetailEntity,
     ]),
+    ChatModule,
   ],
   controllers: [CassetteController],
   providers: [CassetteService, GiftService],

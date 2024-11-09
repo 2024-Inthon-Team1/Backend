@@ -24,11 +24,11 @@ export class GetProfileResponseDto {
   @ApiProperty()
   signatureSongArtist: string;
 
-  constructor(user: UsersEntity) {
+  constructor(user: UsersEntity, profileUrl: string) {
     this.sex = user.sex;
     this.birthDaty = user.birthday;
     this.username = user.username;
-    this.profileUrl = user.profileUrl;
+    this.profileUrl = profileUrl;
     this.sinatureSongId = user.signatureSongId;
     this.signatureSong = user.signatureSong;
     this.signatureSongArtist = user.signatureSongArtist;

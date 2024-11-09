@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from "@nestjs/common";
@@ -116,5 +117,13 @@ export class CassetteController {
     @Body() body: SendCassetteGiftRequestDto
   ): Promise<GiftEntity> {
     return await this.giftService.sendCassetteGift(user.id, body);
+  }
+
+  @Patch("/gift/:giftId")
+  async acceptCassetteGift(
+    @AccessUser() user: JwtPayload,
+    @Param("giftId") giftId: number
+  ) {
+    return await this.giftService.acceptCassetteGift(user.id, giftId);
   }
 }

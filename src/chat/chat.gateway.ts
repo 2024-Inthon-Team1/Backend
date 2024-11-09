@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from "@nestjs/common";
 import {
   MessageBody,
   OnGatewayConnection,
@@ -8,29 +8,30 @@ import {
   WebSocketGateway,
   WebSocketServer,
   ConnectedSocket,
-} from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { ChatMessage, JoinRoomPayload } from './dto/chat.interface';
+} from "@nestjs/websockets";
+import { Server, Socket } from "socket.io";
+import { ChatMessage, JoinRoomPayload } from "./dto/chat.interface";
 
+@Injectable()
 @WebSocketGateway(3030, {
-  namespace: 'chat',
-  cors: { origin: '*' },
+  namespace: "chat",
+  cors: { origin: "*" },
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer() server: Server;
-  private logger: Logger = new Logger('ChatGateway');
+  private logger: Logger = new Logger("ChatGateway");
 
   // 사용자 관리를 위한 Map
   // TODO: DB 연동
   private users: Map<string, { userId: string; roomId: string }> = new Map();
 
   // 채팅방 참여하기
-  @SubscribeMessage('join_room')
+  @SubscribeMessage("join_room")
   handleJoinRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: JoinRoomPayload,
+    @MessageBody() payload: JoinRoomPayload
   ) {
     const { roomId, userId } = payload;
 
@@ -47,7 +48,7 @@ export class ChatGateway
     this.users.set(client.id, { userId, roomId });
 
     // 입장 메시지 브로드캐스트
-    this.server.to(roomId).emit('user_joined', {
+    this.server.to(roomId).emit("user_joined", {
       userId,
       message: `${userId}님이 입장하셨습니다.`,
       timestamp: new Date(),
@@ -55,14 +56,14 @@ export class ChatGateway
 
     this.logger.log(`${userId} join room. roomId : ${roomId}`);
 
-    return { status: 'ok', message: `방 ${roomId}에 참여했습니다.` };
+    return { status: "ok", message: `방 ${roomId}에 참여했습니다.` };
   }
 
   // 메시지 전송하기
-  @SubscribeMessage('send_message')
+  @SubscribeMessage("send_message")
   handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() chatMessage: ChatMessage,
+    @MessageBody() chatMessage: ChatMessage
   ) {
     const user = this.users.get(client.id);
     if (!user) return;
@@ -77,13 +78,13 @@ export class ChatGateway
     // 해당 방의 모든 사용자에게 메시지 브로드캐스트
     this.server
       .to(chatMessage.roomId)
-      .emit('new_message', messageWithTimestamp);
+      .emit("new_message", messageWithTimestamp);
 
-    return { status: 'ok' };
+    return { status: "ok" };
   }
 
   // 채팅방 나가기
-  @SubscribeMessage('leave_room')
+  @SubscribeMessage("leave_room")
   handleLeaveRoom(@ConnectedSocket() client: Socket) {
     const user = this.users.get(client.id);
     if (!user) return;
@@ -93,17 +94,17 @@ export class ChatGateway
     this.users.delete(client.id);
 
     // 퇴장 메시지 브로드캐스트
-    this.server.to(roomId).emit('user_left', {
+    this.server.to(roomId).emit("user_left", {
       userId,
       message: `${userId}님이 퇴장하셨습니다.`,
       timestamp: new Date(),
     });
 
-    return { status: 'ok', message: `Left room ${roomId}` };
+    return { status: "ok", message: `Left room ${roomId}` };
   }
 
   afterInit() {
-    this.logger.log('웹소켓 서버 초기화 ✅');
+    this.logger.log("웹소켓 서버 초기화 ✅");
   }
 
   handleConnection(client: Socket) {
@@ -114,7 +115,7 @@ export class ChatGateway
     const user = this.users.get(client.id);
     if (user) {
       const { userId, roomId } = user;
-      this.server.to(roomId).emit('user_left', {
+      this.server.to(roomId).emit("user_left", {
         userId,
         message: `${userId}님이 연결을 종료했습니다.`,
         timestamp: new Date(),

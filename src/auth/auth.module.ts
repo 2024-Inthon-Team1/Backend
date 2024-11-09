@@ -1,15 +1,16 @@
-import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersEntity } from 'src/entity/users.entity';
-import { TokenEntity } from 'src/entity/token.entity';
-import { JwtModule } from '@nestjs/jwt';
-import { HttpModule } from '@nestjs/axios';
-import { UsersModule } from 'src/users/users.module';
-import { UsersService } from 'src/users/users.service';
-import { JwtStrategy } from './strategy/jwt.strategy';
-import { RefreshStrategy } from './strategy/refresh.strategy';
+import { Module } from "@nestjs/common";
+import { AuthController } from "./auth.controller";
+import { AuthService } from "./auth.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UsersEntity } from "src/entity/users.entity";
+import { TokenEntity } from "src/entity/token.entity";
+import { JwtModule } from "@nestjs/jwt";
+import { HttpModule } from "@nestjs/axios";
+import { UsersModule } from "src/users/users.module";
+import { UsersService } from "src/users/users.service";
+import { JwtStrategy } from "./strategy/jwt.strategy";
+import { RefreshStrategy } from "./strategy/refresh.strategy";
+import { CommonModule } from "src/common/common.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RefreshStrategy } from './strategy/refresh.strategy';
     JwtModule.register({}),
     HttpModule,
     UsersModule,
+    CommonModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, JwtStrategy, RefreshStrategy],

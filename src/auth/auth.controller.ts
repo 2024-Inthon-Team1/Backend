@@ -3,14 +3,16 @@ import {
   Controller,
   HttpCode,
   Post,
-  Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { UsersService } from "src/users/users.service";
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
 } from "@nestjs/swagger";
@@ -25,6 +27,7 @@ import { SignUpRequestDto } from "./dto/sign-up-request.dto";
 import { TokenResponseDto } from "./dto/token-response-dto";
 import { RefreshUser } from "src/common/decorators/refreshUser.decorator";
 import { KakaoLoginResponseDto } from "./dto/kakao-login-response.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("auth")
 export class AuthController {
@@ -79,16 +82,19 @@ export class AuthController {
   @UseGuards(AuthGuard("jwt"))
   @ApiOperation({ summary: "회원가입" })
   @ApiBody({ type: SignUpRequestDto })
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("profileImage"))
   @ApiResponse({
     status: 201,
     description: "회원가입 성공 시",
   })
   async signup(
     @AccessUser() user: JwtPayload,
+    @UploadedFile() profileImage: Express.Multer.File,
     @Body() signupDto: SignUpRequestDto
   ): Promise<void> {
     console.log(signupDto);
-    await this.usersService.signup(signupDto, user.id);
+    await this.usersService.signup(signupDto, profileImage, user.id);
   }
 
   @ApiBearerAuth("refreshToken")

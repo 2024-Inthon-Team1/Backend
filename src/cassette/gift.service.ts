@@ -1,20 +1,26 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ChatGateway } from "./../chat/chat.gateway";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { GiftDetailEntity } from "src/entity/gift-detail.entity";
 import { GiftEntity } from "src/entity/gift.entity";
 import { Repository } from "typeorm";
 import { SendCassetteGiftRequestDto } from "./dto/send-cassette-gift-request.dto";
 import { CassetteEntity } from "src/entity/cassette.entity";
+import { ChatService } from "src/chat/chat.service";
+import { CreateRoomDto } from "src/chat/dto/chat.dto";
 
 @Injectable()
 export class GiftService {
   constructor(
     @InjectRepository(GiftEntity)
     private readonly giftRepository: Repository<GiftEntity>,
-    @InjectRepository(GiftDetailEntity)
-    private readonly giftDetailRepository: Repository<GiftDetailEntity>,
     @InjectRepository(CassetteEntity)
-    private readonly cassetteRepository: Repository<CassetteEntity>
+    private readonly cassetteRepository: Repository<CassetteEntity>,
+    private readonly chatService: ChatService
   ) {}
 
   async getCassetteGift(userId: string): Promise<GiftEntity[]> {
@@ -64,5 +70,25 @@ export class GiftService {
 
     // 4. GiftEntity를 저장합니다. (cascade 옵션에 의해 GiftDetailEntity도 함께 저장됨)
     return await this.giftRepository.save(gift);
+  }
+
+  async acceptCassetteGift(receiverId: string, giftId: number) {
+    // 선물 수락 로직
+    const gift = await this.giftRepository.findOne({ where: { id: giftId } });
+    if (!gift || gift.receiverId !== receiverId) {
+      throw new NotFoundException("선물을 찾을 수 없습니다.");
+    }
+    if (gift.isAccepted) {
+      throw new BadRequestException("이미 수락한 선물입니다.");
+    }
+    gift.isAccepted = true;
+    await this.giftRepository.save(gift);
+    const room = await this.chatService.createRoom(receiverId, gift.senderId);
+
+    console.log(room);
+    if (room) {
+      return true;
+    }
+    return false;
   }
 }

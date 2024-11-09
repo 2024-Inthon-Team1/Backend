@@ -29,10 +29,12 @@ export class SignUpRequestDto {
   @IsNotEmpty()
   username: string;
 
-  @ApiProperty({ description: "프로필 사진 url" })
-  @IsString()
-  @IsNotEmpty()
-  profileUrl: string;
+  @ApiProperty({
+    type: "string",
+    format: "binary",
+    description: "프로필 사진",
+  })
+  profileImage: any;
 
   @ApiProperty({ description: "대표곡 id" })
   @IsString()
