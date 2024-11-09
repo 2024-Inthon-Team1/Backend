@@ -2,10 +2,12 @@ import { SignUpRequestDto } from "./../auth/dto/sign-up-request.dto";
 import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersEntity } from "src/entity/users.entity";
-import { Repository } from "typeorm";
+import { LessThanOrEqual, Not, Repository } from "typeorm";
 import { UserInfoDto } from "./dto/user-info.dto";
 import { CassetteEntity } from "src/entity/cassette.entity";
 import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
+import { CursorPageOptionsDto } from "src/common/dto/CursorPageOptions.dto";
+import { GetRandomUsersSignatureSongResponseDto } from "./dto/get-random-users-signature-song-response.dto";
 
 @Injectable()
 export class UsersService {
@@ -15,14 +17,16 @@ export class UsersService {
   ) {}
 
   async findOrCreateById(id: string): Promise<UserInfoDto> {
+    let isSignedUp = true;
     let user = await this.usersRepository.findOne({ where: { id } });
+    if (!user || (user && !user.username)) isSignedUp = false;
     if (!user) {
       user = this.usersRepository.create({
         id,
       });
       await this.usersRepository.save(user);
     }
-    return new UserInfoDto(user);
+    return new UserInfoDto(user, isSignedUp);
   }
 
   async signup(
@@ -52,5 +56,21 @@ export class UsersService {
   async getProfile(userId: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     return new GetProfileResponseDto(user);
+  }
+
+  async getRandomUsersSignatureSong(
+    userId: string
+  ): Promise<GetRandomUsersSignatureSongResponseDto[]> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const randomUsers = await this.usersRepository
+      .createQueryBuilder("user")
+      .where("user.sex != :sex", { sex: user.sex })
+      .orderBy("RAND()")
+      .limit(10)
+      .getMany();
+
+    return randomUsers.map((randomUser) => {
+      return new GetRandomUsersSignatureSongResponseDto(randomUser);
+    });
   }
 }

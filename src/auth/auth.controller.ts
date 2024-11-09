@@ -6,7 +6,6 @@ import {
   Res,
   UseGuards,
 } from "@nestjs/common";
-import { Response } from "express";
 import { AuthService } from "./auth.service";
 import { UsersService } from "src/users/users.service";
 import {
@@ -65,10 +64,13 @@ export class AuthController {
       userInfoDto.payload.id
     );
 
+    console.log("회원가입 여부 : ", userInfoDto.isSignedUp);
+
     return new KakaoLoginResponseDto(
       token.accessToken,
       token.refreshToken,
-      userInfoDto.payload.id
+      userInfoDto.payload.id,
+      userInfoDto.isSignedUp
     );
   }
 

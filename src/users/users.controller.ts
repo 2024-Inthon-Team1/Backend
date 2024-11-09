@@ -24,6 +24,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { DeleteCassetteResponseDto } from "./dto/delete-cassette-response.dtd";
 import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
 import { CassetteEntity } from "src/entity/cassette.entity";
+import { GetRandomUsersSignatureSongResponseDto } from "./dto/get-random-users-signature-song-response.dto";
 
 @Controller("users")
 @ApiBearerAuth("accessToken")
@@ -96,5 +97,20 @@ export class UsersController {
     @AccessUser() user: JwtPayload
   ): Promise<GetProfileResponseDto> {
     return await this.usersService.getProfile(user.id);
+  }
+
+  @ApiOperation({
+    summary: "랜덤 이성 유저 대표곡 조회",
+    description: "다른 성별 유저의 대표곡을 랜덤으로 10개 조회합니다.",
+  })
+  @ApiResponse({
+    status: 200,
+    type: [GetRandomUsersSignatureSongResponseDto],
+  })
+  @Get("/finding")
+  async getRandomUsersSignatureSong(
+    @AccessUser() user: JwtPayload
+  ): Promise<GetRandomUsersSignatureSongResponseDto[]> {
+    return await this.usersService.getRandomUsersSignatureSong(user.id);
   }
 }
