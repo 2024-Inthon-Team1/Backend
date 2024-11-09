@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -12,6 +13,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
@@ -86,17 +88,24 @@ export class UsersController {
 
   @ApiOperation({
     summary: "유저 프로필 조회",
-    description: "유저 프로필을 조회합니다.",
+    description:
+      "쿼리로 유저 id를 넘겨주는 경우 다른 유저, 없는 경우 본인 프로필을 조회합니다.",
   })
   @ApiResponse({
     status: 200,
     type: GetProfileResponseDto,
   })
+  @ApiQuery({
+    name: "userId",
+    required: false,
+  })
   @Get("/profile")
   async getProfile(
-    @AccessUser() user: JwtPayload
+    @AccessUser() user: JwtPayload,
+    @Query("userId") userId?: string
   ): Promise<GetProfileResponseDto> {
-    return await this.usersService.getProfile(user.id);
+    const targetUserId = userId ?? user.id;
+    return await this.usersService.getProfile(targetUserId);
   }
 
   @ApiOperation({
