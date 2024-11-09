@@ -7,9 +7,11 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { CassetteEntity } from "src/entity/cassette.entity";
 import { UsersEntity } from "src/entity/users.entity";
 import { Repository } from "typeorm";
-import { CreateCassettesRequestDto } from "./dto/create-cassette-request.dto";
 import { CreateCassetteResponseDto } from "./dto/create-cassette-response.dto";
 import { DeleteCassetteResponseDto } from "./dto/delete-cassette-response.dtd";
+import { GiftEntity } from "src/entity/gift.entity";
+import { GiftDetailEntity } from "src/entity/gift-detail.entity";
+import { CreateCassetteRequestDto } from "./dto/create-cassette-request.dto";
 
 @Injectable()
 export class CassetteService {
@@ -28,7 +30,7 @@ export class CassetteService {
 
   async createCassette(
     userId: string,
-    requestDto: CreateCassettesRequestDto
+    requestDto: CreateCassetteRequestDto
   ): Promise<CreateCassetteResponseDto> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     const { songId, title, artist, review } = requestDto;
@@ -61,6 +63,4 @@ export class CassetteService {
 
     return new DeleteCassetteResponseDto(true);
   }
-
-  // async presentCassette()
 }

@@ -1,12 +1,10 @@
 import { SignUpRequestDto } from "./../auth/dto/sign-up-request.dto";
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersEntity } from "src/entity/users.entity";
-import { LessThanOrEqual, Not, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { UserInfoDto } from "./dto/user-info.dto";
-import { CassetteEntity } from "src/entity/cassette.entity";
 import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
-import { CursorPageOptionsDto } from "src/common/dto/CursorPageOptions.dto";
 import { GetRandomUsersSignatureSongResponseDto } from "./dto/get-random-users-signature-song-response.dto";
 
 @Injectable()

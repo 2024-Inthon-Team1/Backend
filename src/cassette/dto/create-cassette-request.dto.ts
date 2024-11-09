@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class CreateCassettesRequestDto {
+export class CreateCassetteRequestDto {
   @ApiProperty({ description: "노래 id" })
   @IsString()
   @IsNotEmpty()
