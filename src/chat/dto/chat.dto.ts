@@ -1,8 +1,8 @@
 import { Types } from "mongoose";
 
-export class CreateRoomDto {
+export class RoomDto {
   roomId: string;
-  invitor: string;
-  invitee: string;
-  name: string;
+  otherPerson: string;
+  lastMessage: string;
+  createdAt: string;
 }

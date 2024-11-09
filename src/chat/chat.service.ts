@@ -2,120 +2,185 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, Types } from "mongoose";
-import { Room } from "./schema/room.schema";
-import { Chat } from "./schema/chat.schema";
-import { CreateRoomDto } from "./dto/chat.dto";
-import { User } from "./schema/user.schema";
+import { RoomDto } from "./dto/chat.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { ChatEntity } from "src/entity/chat.entity";
+import { Repository } from "typeorm";
+import { RoomEntity } from "src/entity/room.entity";
+import { UsersEntity } from "src/entity/users.entity";
+import { ChatUserEntity } from "src/entity/chat-user.entity";
+import { SocketUserEntity } from "src/entity/socket-user.entity";
 
 @Injectable()
 export class ChatService {
   constructor(
-    @InjectModel(Room.name) private roomModel: Model<Room>,
-    @InjectModel(Chat.name) private chatModel: Model<Chat>,
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectRepository(UsersEntity)
+    private readonly usersRepository: Repository<UsersEntity>,
+    @InjectRepository(RoomEntity)
+    private readonly roomRepository: Repository<RoomEntity>,
+    @InjectRepository(ChatEntity)
+    private readonly chatRepository: Repository<ChatEntity>,
+    @InjectRepository(ChatUserEntity)
+    private readonly chatUserRepository: Repository<ChatUserEntity>,
+    @InjectRepository(SocketUserEntity)
+    private readonly socketUserRepository: Repository<SocketUserEntity>
   ) {}
 
-  async createRoom(senderId: string, receiverId: string): Promise<Room> {
-    let invitor = await this.userModel.findOne({ userId: receiverId });
-    let invitee = await this.userModel.findOne({ userId: senderId });
+  async createRoom(receiverId: string, senderId: string): Promise<RoomEntity> {
+    let invitor = await this.chatUserRepository.findOne({
+      where: { userId: receiverId },
+    });
+    let invitee = await this.chatUserRepository.findOne({
+      where: { userId: senderId },
+    });
 
     if (!invitor) {
-      invitor = await this.userModel.create({
+      const user = await this.usersRepository.findOne({
+        where: { id: receiverId },
+      });
+      invitor = this.chatUserRepository.create({
         userId: receiverId,
-        username: `User_${receiverId}`,
-        profileUrl: `profile_${receiverId}`,
+        username: user.username,
+        profileUrl: user.profileUrl,
       });
     }
 
     if (!invitee) {
-      invitee = await this.userModel.create({
+      const user = await this.usersRepository.findOne({
+        where: { id: senderId },
+      });
+      invitee = this.chatUserRepository.create({
         userId: senderId,
-        username: `User_${senderId}`,
-        profileUrl: `profile_${senderId}`,
+        username: user.username,
+        profileUrl: user.profileUrl,
       });
     }
 
     // 3. Room 생성 또는 존재 여부 확인
     const roomId = `room_${Math.min(Number(senderId), Number(receiverId))}_${Math.max(Number(senderId), Number(receiverId))}`;
-    let room = await this.roomModel.findOne({ roomId });
+    let room = await this.roomRepository.findOne({ where: { id: roomId } });
 
     if (!room) {
-      const newRoom = new this.roomModel({
-        roomId,
-        name: `Gift Chat - ${senderId} to ${receiverId}`,
-        invitor: invitor._id,
-        invitee: invitee._id,
+      const newRoom = this.roomRepository.create({
+        id: roomId,
+        invitor: receiverId,
+        invitee: senderId,
       });
-      room = await newRoom.save();
+      await this.roomRepository.save(newRoom);
     }
 
-    // 4. 초기 메시지 추가
-    const initialMessage = new this.chatModel({
-      roomId: room._id,
-      senderId: invitor._id,
-      message: `초대된 채팅방이 생성되었습니다.`,
-    });
-    await initialMessage.save();
+    invitor.roomId = roomId;
+    invitee.roomId = roomId;
+
+    await this.chatUserRepository.save(invitor);
+    await this.chatUserRepository.save(invitee);
 
     return room;
   }
 
-  async addUserToRoom(roomId: string, userId: string): Promise<Room> {
-    return await this.roomModel.findOneAndUpdate(
-      { roomId },
-      { $addToSet: { users: userId } }, // 중복 추가 방지
-      { new: true }
-    );
-  }
+  // async saveMessage(
+  //   roomId: string,
+  //   userId: string,
+  //   message: string
+  // ): Promise<Chat> {
+  //   const chatMessage = new this.chatModel({ roomId, userId, message });
+  //   return await chatMessage.save();
+  // }
 
-  async saveMessage(
-    roomId: string,
-    userId: string,
-    message: string
-  ): Promise<Chat> {
-    const chatMessage = new this.chatModel({ roomId, userId, message });
-    return await chatMessage.save();
-  }
-
-  async getMessagesByRoomId(roomId: string): Promise<Chat[]> {
-    return await this.chatModel.find({ roomId }).sort({ createdAt: 1 }).exec();
-  }
+  // async getMessagesByRoomId(roomId: string): Promise<Chat[]> {
+  //   return await this.chatModel.find({ roomId }).sort({ createdAt: 1 }).exec();
+  // }
 
   async getChatRooms(userId: string): Promise<any[]> {
-    const id = new Types.ObjectId(userId);
-    const rooms = await this.roomModel.find({
-      $or: [{ invitor: id }, { invitee: id }],
+    const rooms = await this.roomRepository.find({
+      where: [{ invitor: userId }, { invitee: userId }],
+      relations: ["chats"], // 필요한 관계를 함께 로드
     });
+
     console.log(rooms);
-    return await this.roomModel.aggregate([
-      {
-        $match: {
-          $or: [{ invitor: id }, { invitee: id }],
-        },
-      },
-      {
-        $lookup: {
-          from: "chats", // Chat 컬렉션과 조인
-          localField: "_id",
-          foreignField: "roomId",
-          as: "chats",
-        },
-      },
-      {
-        $addFields: {
-          lastMessage: { $arrayElemAt: [{ $slice: ["$chats", -1] }, 0] }, // 마지막 메시지만 가져옴
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          roomId: 1,
-          name: 1,
-          "lastMessage.message": 1,
-          "lastMessage.createdAt": 1,
-        },
-      },
-      { $sort: { "lastMessage.createdAt": -1 } }, // 마지막 메시지 시간순으로 정렬
-    ]);
+
+    const response = await Promise.all(
+      rooms.map(async (room) => {
+        const otherId = room.invitee === userId ? room.invitor : room.invitee;
+
+        // 상대방 사용자 정보 조회
+        const otherUser = await this.usersRepository.findOne({
+          where: { id: otherId },
+        });
+
+        // 마지막 메시지 조회
+        const lastMessage = await this.chatRepository
+          .createQueryBuilder("chat")
+          .where("chat.room = :roomId", { roomId: room.id })
+          .orderBy("chat.createdAt", "DESC")
+          .getOne();
+
+        return {
+          roomId: room.id,
+          otherUser: otherUser?.username || null,
+          lastMessage: lastMessage?.message || null,
+          lastMessageTime: lastMessage?.createdAt || null,
+        };
+      })
+    );
+
+    return response;
+  }
+
+  async getChats(roomId: string, userId: string) {
+    // roomId와 userId를 ObjectId 형식으로 변환
+    const room = await this.roomRepository
+      .createQueryBuilder("room")
+      .leftJoinAndSelect("room.chats", "chat")
+      .where("room.id = :roomId", { roomId })
+      .orderBy("chat.createdAt", "ASC") // 옛날 -> 최근 순으로 정렬
+      .getOne();
+
+    return room.chats;
+  }
+
+  // 방에 입장
+  async joinRoom(userId: string, roomId: string, socketId: string) {
+    // SocketUser 생성 및 연결 정보 저장
+    const socketUser = await this.socketUserRepository.save({
+      socketId,
+      user: { id: userId },
+      room: { id: roomId },
+      connectedAt: new Date(),
+    });
+
+    return socketUser;
+  }
+
+  // 방에서 나가기
+  async leaveRoom(userId: string, roomId: string, socketId: string) {
+    await this.socketUserRepository.delete({ socketId, room: { id: roomId } });
+  }
+
+  // 메시지 저장
+  async sendMessage(userId: string, roomId: string, message: string) {
+    const chatMessage = await this.chatRepository.save({
+      sender: { id: userId },
+      room: { id: roomId },
+      message,
+      createdAt: new Date(),
+    });
+
+    return chatMessage;
+  }
+
+  // 소켓 연결 정보 저장
+  async saveSocketUser(userId: string, socketId: string, roomId: string) {
+    return await this.socketUserRepository.save({
+      socketId,
+      user: { id: userId },
+      room: { id: roomId },
+      connectedAt: new Date(),
+    });
+  }
+
+  // 소켓 연결 정보 삭제
+  async removeSocketUser(socketId: string) {
+    await this.socketUserRepository.delete({ socketId });
   }
 }

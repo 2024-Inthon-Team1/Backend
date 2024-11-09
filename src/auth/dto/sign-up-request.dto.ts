@@ -10,15 +10,12 @@ import {
 import { Sex } from "src/common/enums/sex.enum";
 
 export class SignUpRequestDto {
-  @ApiProperty({ description: "성별" })
+  @ApiProperty({ description: "성별", enum: Sex })
   @IsEnum(Sex)
   @IsNotEmpty()
   sex: Sex;
 
   @ApiProperty({ description: "생년월일, yyyy-mm-dd 형식" })
-  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
-    message: "생년월일은 yyyy-mm-dd 형식이어야 합니다.",
-  })
   @IsString()
   @IsNotEmpty()
   birthday: string;
@@ -28,13 +25,6 @@ export class SignUpRequestDto {
   @IsString()
   @IsNotEmpty()
   username: string;
-
-  @ApiProperty({
-    type: "string",
-    format: "binary",
-    description: "프로필 사진",
-  })
-  profileImage: any;
 
   @ApiProperty({ description: "대표곡 id" })
   @IsString()

@@ -11,7 +11,6 @@ import { Repository } from "typeorm";
 import { SendCassetteGiftRequestDto } from "./dto/send-cassette-gift-request.dto";
 import { CassetteEntity } from "src/entity/cassette.entity";
 import { ChatService } from "src/chat/chat.service";
-import { CreateRoomDto } from "src/chat/dto/chat.dto";
 
 @Injectable()
 export class GiftService {

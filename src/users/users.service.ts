@@ -31,17 +31,8 @@ export class UsersService {
 
   async signup(
     signupRequestDto: SignUpRequestDto,
-    profileImage: Express.Multer.File,
     userId: string
   ): Promise<void> {
-    if (!this.fileService.imagefilter(profileImage)) {
-      throw new BadRequestException("Only image file can be uploaded!");
-    }
-    const profileUrl = await this.fileService.uploadFile(
-      profileImage,
-      "User",
-      "ProfileImage"
-    );
     const {
       sex,
       birthday,
@@ -55,7 +46,6 @@ export class UsersService {
     user.sex = sex;
     user.birthday = birthday;
     user.username = username;
-    user.profileUrl = profileUrl;
     user.signatureSongId = signatureSongId;
     user.signatureSong = signatureSong;
     user.signatureSongArtist = signatureSongArtist;
@@ -63,10 +53,32 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
+  async addProfileImage(profileImage: Express.Multer.File, userId: string) {
+    if (!this.fileService.imagefilter(profileImage)) {
+      throw new BadRequestException("Only image file can be uploaded!");
+    }
+    const profileUrl = await this.fileService.uploadFile(
+      profileImage,
+      "User",
+      "ProfileImage"
+    );
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    user.profileUrl = profileUrl;
+    await this.usersRepository.save(user);
+
+    return true;
+  }
+
   async getProfile(userId: string) {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
+    return new GetProfileResponseDto(user);
+  }
+
+  async getProfileImage(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
     const profileUrl = this.fileService.makeUrlByFileDir(user.profileUrl);
-    return new GetProfileResponseDto(user, profileUrl);
+    return profileUrl;
   }
 
   async getRandomUsersSignatureSong(

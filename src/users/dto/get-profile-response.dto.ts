@@ -7,13 +7,10 @@ export class GetProfileResponseDto {
   sex: Sex;
 
   @ApiProperty()
-  birthDaty: string;
+  birthDay: string;
 
   @ApiProperty()
   username: string;
-
-  @ApiProperty()
-  profileUrl: string;
 
   @ApiProperty()
   sinatureSongId: string;
@@ -24,11 +21,10 @@ export class GetProfileResponseDto {
   @ApiProperty()
   signatureSongArtist: string;
 
-  constructor(user: UsersEntity, profileUrl: string) {
+  constructor(user: UsersEntity) {
     this.sex = user.sex;
-    this.birthDaty = user.birthday;
+    this.birthDay = user.birthday;
     this.username = user.username;
-    this.profileUrl = profileUrl;
     this.sinatureSongId = user.signatureSongId;
     this.signatureSong = user.signatureSong;
     this.signatureSongArtist = user.signatureSongArtist;

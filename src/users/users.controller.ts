@@ -53,6 +53,28 @@ export class UsersController {
   }
 
   @ApiOperation({
+    summary: "유저 프로필 사진 조회",
+    description:
+      "쿼리로 유저 id를 넘겨주는 경우 다른 유저, 없는 경우 본인 프로필 사진 url을 조회합니다.",
+  })
+  @ApiResponse({
+    status: 200,
+    type: String,
+  })
+  @ApiQuery({
+    name: "userId",
+    required: false,
+  })
+  @Get("/profileImage")
+  async getProfileImage(
+    @AccessUser() user: JwtPayload,
+    @Query("userId") userId?: string
+  ) {
+    const targetUserId = userId ?? user.id;
+    return await this.usersService.getProfileImage(targetUserId);
+  }
+
+  @ApiOperation({
     summary: "랜덤 이성 유저 대표곡 조회",
     description: "다른 성별 유저의 대표곡을 랜덤으로 10개 조회합니다.",
   })

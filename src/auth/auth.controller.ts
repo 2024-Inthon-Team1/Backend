@@ -28,6 +28,7 @@ import { TokenResponseDto } from "./dto/token-response-dto";
 import { RefreshUser } from "src/common/decorators/refreshUser.decorator";
 import { KakaoLoginResponseDto } from "./dto/kakao-login-response.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { AddProfileImageDto } from "./dto/add-profile-image-dto";
 
 @Controller("auth")
 export class AuthController {
@@ -82,19 +83,31 @@ export class AuthController {
   @UseGuards(AuthGuard("jwt"))
   @ApiOperation({ summary: "회원가입" })
   @ApiBody({ type: SignUpRequestDto })
-  @ApiConsumes("multipart/form-data")
-  @UseInterceptors(FileInterceptor("profileImage"))
   @ApiResponse({
     status: 201,
     description: "회원가입 성공 시",
   })
   async signup(
     @AccessUser() user: JwtPayload,
-    @UploadedFile() profileImage: Express.Multer.File,
     @Body() signupDto: SignUpRequestDto
   ): Promise<void> {
     console.log(signupDto);
-    await this.usersService.signup(signupDto, profileImage, user.id);
+    await this.usersService.signup(signupDto, user.id);
+  }
+
+  @ApiOperation({ summary: "프로필 이미지 등록" })
+  @ApiBody({ type: AddProfileImageDto })
+  @ApiBearerAuth("accessToken")
+  @ApiConsumes("multipart/form-data")
+  @UseGuards(AuthGuard("jwt"))
+  @UseInterceptors(FileInterceptor("profileImage"))
+  @Post("/addProfile")
+  async addProfileImage(
+    @AccessUser() user: JwtPayload,
+    @Body() body: AddProfileImageDto,
+    @UploadedFile() profileImage: Express.Multer.File
+  ): Promise<boolean> {
+    return await this.usersService.addProfileImage(profileImage, user.id);
   }
 
   @ApiBearerAuth("refreshToken")

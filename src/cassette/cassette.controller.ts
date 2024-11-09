@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import { UsersService } from "src/users/users.service";
@@ -16,6 +17,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
 } from "@nestjs/swagger";
 import { CassetteEntity } from "src/entity/cassette.entity";
@@ -39,17 +41,24 @@ export class CassetteController {
 
   @ApiOperation({
     summary: "카세트 테잎 컬렉션 조회",
-    description: "카세트 테잎 컬렉션을 조회합니다.",
+    description:
+      "쿼리로 유저 id를 넘겨주는 경우 다른 유저, 없는 경우 본인의 카세트 테잎 컬렉션을 조회합니다.",
   })
   @ApiResponse({
     status: 200,
     type: [CassetteEntity],
   })
+  @ApiQuery({
+    name: "userId",
+    required: false,
+  })
   @Get()
   async getCassettes(
-    @AccessUser() user: JwtPayload
+    @AccessUser() user: JwtPayload,
+    @Query("userId") userId?: string
   ): Promise<CassetteEntity[]> {
-    return await this.cassetteService.getCassettes(user.id);
+    const targetUserId = userId ?? user.id;
+    return await this.cassetteService.getCassettes(targetUserId);
   }
 
   @ApiOperation({
