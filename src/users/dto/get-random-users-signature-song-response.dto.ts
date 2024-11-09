@@ -8,6 +8,9 @@ export class GetRandomUsersSignatureSongResponseDto {
   @ApiProperty({ description: "닉네임" })
   username: string;
 
+  @ApiProperty({ description: "대표곡 id" })
+  signatureSongId: string;
+
   @ApiProperty({ description: "대표곡" })
   signatureSong: string;
 
@@ -17,7 +20,8 @@ export class GetRandomUsersSignatureSongResponseDto {
   constructor(user: UsersEntity) {
     this.id = user.id;
     this.username = user.username;
-    this.signatureSong = this.signatureSong;
-    this.signatureSongArtist = this.signatureSongArtist;
+    this.signatureSongId = user.signatureSongId;
+    this.signatureSong = user.signatureSong;
+    this.signatureSongArtist = user.signatureSongArtist;
   }
 }

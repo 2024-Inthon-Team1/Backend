@@ -31,8 +31,9 @@ export class CassetteService {
     requestDto: CreateCassettesRequestDto
   ): Promise<CreateCassetteResponseDto> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
-    const { title, artist, review } = requestDto;
+    const { songId, title, artist, review } = requestDto;
     const cassette = this.cassetteRepository.create({
+      songId,
       title,
       artist,
       review,
@@ -60,4 +61,6 @@ export class CassetteService {
 
     return new DeleteCassetteResponseDto(true);
   }
+
+  // async presentCassette()
 }

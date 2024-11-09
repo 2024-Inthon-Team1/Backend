@@ -16,6 +16,9 @@ export class GetProfileResponseDto {
   profileUrl: string;
 
   @ApiProperty()
+  sinatureSongId: string;
+
+  @ApiProperty()
   signatureSong: string;
 
   @ApiProperty()
@@ -26,6 +29,7 @@ export class GetProfileResponseDto {
     this.birthDaty = user.birthday;
     this.username = user.username;
     this.profileUrl = user.profileUrl;
+    this.sinatureSongId = user.signatureSongId;
     this.signatureSong = user.signatureSong;
     this.signatureSongArtist = user.signatureSongArtist;
   }

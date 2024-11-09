@@ -21,6 +21,9 @@ export class UsersEntity extends CommonEntity {
   profileUrl?: string;
 
   @Column({ nullable: true, type: "varchar" })
+  signatureSongId?: string;
+
+  @Column({ nullable: true, type: "varchar" })
   signatureSong?: string;
 
   @Column({ nullable: true, type: "varchar" })

@@ -34,6 +34,11 @@ export class SignUpRequestDto {
   @IsNotEmpty()
   profileUrl: string;
 
+  @ApiProperty({ description: "대표곡 id" })
+  @IsString()
+  @IsNotEmpty()
+  signatureSongId: string;
+
   @ApiProperty({ description: "대표곡" })
   @IsString()
   @IsNotEmpty()

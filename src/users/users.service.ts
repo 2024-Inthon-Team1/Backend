@@ -38,6 +38,7 @@ export class UsersService {
       birthday,
       username,
       profileUrl,
+      signatureSongId,
       signatureSong,
       signatureSongArtist,
     } = signupRequestDto;
@@ -47,6 +48,7 @@ export class UsersService {
     user.birthday = birthday;
     user.username = username;
     user.profileUrl = profileUrl;
+    user.signatureSongId = signatureSongId;
     user.signatureSong = signatureSong;
     user.signatureSongArtist = signatureSongArtist;
 

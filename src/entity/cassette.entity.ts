@@ -14,6 +14,9 @@ export class CassetteEntity extends CommonEntity {
   id: number;
 
   @Column({ type: "varchar" })
+  songId: string;
+
+  @Column({ type: "varchar" })
   title: string;
 
   @Column({ type: "varchar" })
