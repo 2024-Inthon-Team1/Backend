@@ -16,6 +16,8 @@ export class GiftEntity extends CommonEntity {
   @Column({ type: "text" })
   letter: string;
 
-  @OneToMany(() => GiftDetailEntity, (giftDetail) => giftDetail.gift)
+  @OneToMany(() => GiftDetailEntity, (giftDetail) => giftDetail.gift, {
+    cascade: true,
+  })
   giftDetails: GiftDetailEntity[];
 }

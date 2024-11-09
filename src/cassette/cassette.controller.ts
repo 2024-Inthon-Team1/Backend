@@ -86,6 +86,19 @@ export class CassetteController {
   }
 
   @ApiOperation({
+    summary: "받은 카세트 테잎 선물 조회",
+    description: "받은 카세트 테잎 선물을 조회합니다.",
+  })
+  @ApiResponse({
+    status: 200,
+    type: [GiftEntity],
+  })
+  @Get("/gift")
+  async getCassetteGift(@AccessUser() user: JwtPayload): Promise<GiftEntity[]> {
+    return await this.giftService.getCassetteGift(user.id);
+  }
+
+  @ApiOperation({
     summary: "카세트 테잎 선물하기",
     description:
       "특정 유저에게 카세트 테잎 컬렉션을 선물합니다. 컬렉션은 5개까지 선택 가능합니다.",

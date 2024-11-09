@@ -17,6 +17,13 @@ export class GiftService {
     private readonly cassetteRepository: Repository<CassetteEntity>
   ) {}
 
+  async getCassetteGift(userId: string): Promise<GiftEntity[]> {
+    return await this.giftRepository.find({
+      where: { receiverId: userId },
+      relations: ["giftDetails"],
+    });
+  }
+
   async sendCassetteGift(
     senderId: string,
     requestDto: SendCassetteGiftRequestDto
@@ -45,6 +52,8 @@ export class GiftService {
       giftDetail.artist = cassette.artist; // 관계 설정
       return giftDetail;
     });
+
+    console.log(giftDetails);
 
     // 3. GiftEntity를 생성하고, 필요한 정보와 함께 giftDetails를 포함시킵니다.
     const gift = new GiftEntity();
