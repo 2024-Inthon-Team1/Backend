@@ -27,7 +27,15 @@ export class UsersService {
     signupRequestDto: SignUpRequestDto,
     userId: string
   ): Promise<void> {
-    const { sex, birthday, username, profileUrl, bio } = signupRequestDto;
+    const {
+      sex,
+      birthday,
+      username,
+      profileUrl,
+      bio,
+      signatureSong,
+      signatureSongArtist,
+    } = signupRequestDto;
     const user = await this.usersRepository.findOne({ where: { id: userId } });
 
     user.sex = sex;
@@ -35,6 +43,8 @@ export class UsersService {
     user.username = username;
     user.profileUrl = profileUrl;
     user.bio = bio;
+    user.signatureSong = signatureSong;
+    user.signatureSongArtist = signatureSongArtist;
 
     await this.usersRepository.save(user);
   }

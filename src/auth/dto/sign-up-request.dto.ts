@@ -38,4 +38,14 @@ export class SignUpRequestDto {
   @IsString()
   @IsOptional()
   bio?: string;
+
+  @ApiProperty({ description: "대표곡" })
+  @IsString()
+  @IsNotEmpty()
+  signatureSong: string;
+
+  @ApiProperty({ description: "대표곡 아티스트" })
+  @IsString()
+  @IsNotEmpty()
+  signatureSongArtist: string;
 }

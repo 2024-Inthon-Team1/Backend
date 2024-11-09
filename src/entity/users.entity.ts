@@ -1,6 +1,7 @@
 import { Sex } from "src/common/enums/sex.enum";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { CommonEntity } from "./common.entity";
+import { CassetteEntity } from "./cassette.entity";
 
 @Entity("users")
 export class UsersEntity extends CommonEntity {
@@ -21,4 +22,13 @@ export class UsersEntity extends CommonEntity {
 
   @Column({ nullable: true, type: "text" })
   bio?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  signatureSong?: string;
+
+  @Column({ nullable: true, type: "varchar" })
+  signatureSongArtist?: string;
+
+  @OneToMany(() => CassetteEntity, (cassette) => cassette.user)
+  cassettes: CassetteEntity[];
 }
