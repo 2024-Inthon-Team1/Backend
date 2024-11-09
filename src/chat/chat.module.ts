@@ -7,6 +7,7 @@ import { UsersEntity } from "src/entity/users.entity";
 import { RoomEntity } from "src/entity/room.entity";
 import { ChatEntity } from "src/entity/chat.entity";
 import { ChatUserEntity } from "src/entity/chat-user.entity";
+import { SocketUserEntity } from "src/entity/socket-user.entity";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ChatUserEntity } from "src/entity/chat-user.entity";
       RoomEntity,
       ChatEntity,
       ChatUserEntity,
+      SocketUserEntity,
     ]),
   ],
   providers: [ChatGateway, ChatService],

@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { UserEntity } from "./user.entity";
+import { UsersEntity } from "./users.entity";
 import { RoomEntity } from "./room.entity";
 
 @Entity("socket_user")
@@ -10,10 +10,10 @@ export class SocketUserEntity {
   @Column()
   socketId: string; // WebSocket 클라이언트 ID
 
-  @ManyToOne(() => UserEntity, (user) => user.socketUsers, {
+  @ManyToOne(() => UsersEntity, (user) => user.socketUsers, {
     onDelete: "CASCADE",
   })
-  user: UserEntity;
+  user: UsersEntity;
 
   @ManyToOne(() => RoomEntity, (room) => room.socketUsers, {
     onDelete: "CASCADE",

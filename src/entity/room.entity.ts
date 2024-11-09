@@ -7,6 +7,7 @@ import {
 } from "typeorm";
 import { CommonEntity } from "./common.entity";
 import { ChatEntity } from "./chat.entity";
+import { SocketUserEntity } from "./socket-user.entity";
 
 @Entity("room")
 export class RoomEntity extends CommonEntity {
@@ -22,6 +23,6 @@ export class RoomEntity extends CommonEntity {
   @OneToMany(() => ChatEntity, (chat) => chat.room)
   chats: ChatEntity[];
 
-  @OneToMany(() => ChatEntity, (chat) => chat.room)
-  socket: ChatEntity[];
+  @OneToMany(() => SocketUserEntity, (socketUser) => socketUser.room)
+  socketUsers: SocketUserEntity[];
 }

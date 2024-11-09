@@ -2,6 +2,7 @@ import { Sex } from "src/common/enums/sex.enum";
 import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
 import { CommonEntity } from "./common.entity";
 import { CassetteEntity } from "./cassette.entity";
+import { SocketUserEntity } from "./socket-user.entity";
 
 @Entity("users")
 export class UsersEntity extends CommonEntity {
@@ -31,4 +32,7 @@ export class UsersEntity extends CommonEntity {
 
   @OneToMany(() => CassetteEntity, (cassette) => cassette.user)
   cassettes: CassetteEntity[];
+
+  @OneToMany(() => SocketUserEntity, (socketUser) => socketUser.user)
+  socketUsers: SocketUserEntity[];
 }
