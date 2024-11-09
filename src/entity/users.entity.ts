@@ -20,9 +20,6 @@ export class UsersEntity extends CommonEntity {
   @Column({ nullable: true, type: "varchar" })
   profileUrl?: string;
 
-  @Column({ nullable: true, type: "text" })
-  bio?: string;
-
   @Column({ nullable: true, type: "varchar" })
   signatureSong?: string;
 

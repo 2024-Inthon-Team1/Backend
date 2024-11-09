@@ -1,8 +1,17 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
 } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
@@ -12,16 +21,18 @@ import { CassetteService } from "./cassettes.service";
 import { CreateCassetteResponseDto } from "./dto/create-cassette-response.dto";
 import { CreateCassettesRequestDto } from "./dto/create-cassette-request.dto";
 import { AuthGuard } from "@nestjs/passport";
+import { DeleteCassetteResponseDto } from "./dto/delete-cassette-response.dtd";
+import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
 
 @Controller("users")
 @ApiBearerAuth("accessToken")
+@UseGuards(AuthGuard("jwt"))
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cassetteService: CassetteService
   ) {}
 
-  @UseGuards(AuthGuard("jwt"))
   @ApiOperation({
     summary: "카세트 테잎 컬렉션 추가",
     description: "카세트 테잎 컬렉션을 추가합니다.",
@@ -29,13 +40,45 @@ export class UsersController {
   @ApiBody({ type: CreateCassettesRequestDto })
   @ApiResponse({
     status: 201,
-    description: "저장된 카세트 테잎 정보",
+    type: CreateCassetteResponseDto,
   })
   @Post("/cassettes")
-  async createCassettes(
+  async createCassette(
     @AccessUser() user: JwtPayload,
     @Body() body: CreateCassettesRequestDto
   ): Promise<CreateCassetteResponseDto> {
     return await this.cassetteService.createCassette(user.id, body);
+  }
+
+  @ApiOperation({
+    summary: "카세트 테잎 컬렉션 삭제",
+    description: "카세트 테잎 컬렉션을 삭제합니다.",
+  })
+  @ApiParam({ name: "cassetteId", description: "cassette의 id" })
+  @ApiResponse({
+    status: 200,
+    type: DeleteCassetteResponseDto,
+  })
+  @Delete("/cassettes/:cassetteId")
+  async deleteCassette(
+    @AccessUser() user: JwtPayload,
+    @Param("cassetteId") cassetteId: number
+  ): Promise<DeleteCassetteResponseDto> {
+    return await this.cassetteService.deleteCassette(user.id, cassetteId);
+  }
+
+  @ApiOperation({
+    summary: "유저 프로필 조회",
+    description: "유저 프로필을 조회합니다.",
+  })
+  @ApiResponse({
+    status: 200,
+    type: GetProfileResponseDto,
+  })
+  @Get("/profile")
+  async getProfile(
+    @AccessUser() user: JwtPayload
+  ): Promise<GetProfileResponseDto> {
+    return await this.usersService.getProfile(user.id);
   }
 }

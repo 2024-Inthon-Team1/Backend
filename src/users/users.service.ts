@@ -5,6 +5,7 @@ import { UsersEntity } from "src/entity/users.entity";
 import { Repository } from "typeorm";
 import { UserInfoDto } from "./dto/user-info.dto";
 import { CassetteEntity } from "src/entity/cassette.entity";
+import { GetProfileResponseDto } from "./dto/get-profile-response.dto";
 
 @Injectable()
 export class UsersService {
@@ -33,7 +34,6 @@ export class UsersService {
       birthday,
       username,
       profileUrl,
-      bio,
       signatureSong,
       signatureSongArtist,
     } = signupRequestDto;
@@ -43,10 +43,14 @@ export class UsersService {
     user.birthday = birthday;
     user.username = username;
     user.profileUrl = profileUrl;
-    user.bio = bio;
     user.signatureSong = signatureSong;
     user.signatureSongArtist = signatureSongArtist;
 
     await this.usersRepository.save(user);
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    return new GetProfileResponseDto(user);
   }
 }

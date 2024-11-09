@@ -40,6 +40,7 @@ export class AuthController {
   })
   @HttpCode(200)
   @ApiBody({ type: KakaoLoginRequestDto })
+  @ApiResponse({ status: 200, type: KakaoLoginResponseDto })
   @Post("/kakao")
   async kakaoLogin(
     @Body() body: KakaoLoginRequestDto
