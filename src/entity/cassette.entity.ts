@@ -13,14 +13,14 @@ export class CassetteEntity extends CommonEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: "varchar" })
   title: string;
 
-  @Column()
-  type: string;
-
-  @Column()
+  @Column({ type: "varchar" })
   artist: string;
+
+  @Column({ type: "text" })
+  review: string;
 
   @JoinColumn({ name: "userId" })
   @ManyToOne(() => UsersEntity, (user) => user.cassettes)

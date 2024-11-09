@@ -1,9 +1,10 @@
 import { SignUpRequestDto } from "./../auth/dto/sign-up-request.dto";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UsersEntity } from "src/entity/users.entity";
 import { Repository } from "typeorm";
 import { UserInfoDto } from "./dto/user-info.dto";
+import { CassetteEntity } from "src/entity/cassette.entity";
 
 @Injectable()
 export class UsersService {
