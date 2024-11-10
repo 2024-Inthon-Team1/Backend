@@ -84,7 +84,6 @@ export class GiftService {
     await this.giftRepository.save(gift);
     const room = await this.chatService.createRoom(receiverId, gift.senderId);
 
-    console.log(room);
     if (room) {
       return true;
     }

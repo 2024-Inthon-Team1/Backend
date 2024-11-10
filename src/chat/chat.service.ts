@@ -78,19 +78,6 @@ export class ChatService {
     return room;
   }
 
-  // async saveMessage(
-  //   roomId: string,
-  //   userId: string,
-  //   message: string
-  // ): Promise<Chat> {
-  //   const chatMessage = new this.chatModel({ roomId, userId, message });
-  //   return await chatMessage.save();
-  // }
-
-  // async getMessagesByRoomId(roomId: string): Promise<Chat[]> {
-  //   return await this.chatModel.find({ roomId }).sort({ createdAt: 1 }).exec();
-  // }
-
   async getChatRooms(userId: string): Promise<any[]> {
     const rooms = await this.roomRepository.find({
       where: [{ invitor: userId }, { invitee: userId }],
@@ -139,48 +126,11 @@ export class ChatService {
     return room.chats;
   }
 
-  // 방에 입장
-  async joinRoom(userId: string, roomId: string, socketId: string) {
-    // SocketUser 생성 및 연결 정보 저장
-    const socketUser = await this.socketUserRepository.save({
-      socketId,
+  async createSocketUser(userId: string, cliendId: string) {
+    const socketUser = this.socketUserRepository.create({
+      socketId: cliendId,
       user: { id: userId },
-      room: { id: roomId },
-      connectedAt: new Date(),
     });
-
-    return socketUser;
-  }
-
-  // 방에서 나가기
-  async leaveRoom(userId: string, roomId: string, socketId: string) {
-    await this.socketUserRepository.delete({ socketId, room: { id: roomId } });
-  }
-
-  // 메시지 저장
-  async sendMessage(userId: string, roomId: string, message: string) {
-    const chatMessage = await this.chatRepository.save({
-      sender: { id: userId },
-      room: { id: roomId },
-      message,
-      createdAt: new Date(),
-    });
-
-    return chatMessage;
-  }
-
-  // 소켓 연결 정보 저장
-  async saveSocketUser(userId: string, socketId: string, roomId: string) {
-    return await this.socketUserRepository.save({
-      socketId,
-      user: { id: userId },
-      room: { id: roomId },
-      connectedAt: new Date(),
-    });
-  }
-
-  // 소켓 연결 정보 삭제
-  async removeSocketUser(socketId: string) {
-    await this.socketUserRepository.delete({ socketId });
+    await this.socketUserRepository.save(socketUser);
   }
 }

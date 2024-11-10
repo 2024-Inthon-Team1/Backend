@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import {
   MessageBody,
   OnGatewayConnection,
@@ -12,7 +12,6 @@ import {
 import { Server, Socket } from "socket.io";
 import { ChatMessage, JoinRoomPayload } from "./dto/chat.interface";
 
-@Injectable()
 @WebSocketGateway(3030, {
   namespace: "chat",
   cors: { origin: "*" },

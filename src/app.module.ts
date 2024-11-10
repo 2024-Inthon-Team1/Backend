@@ -8,6 +8,7 @@ import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CassetteModule } from "./cassette/cassette.module";
 import { CommonModule } from "./common/common.module";
+import { ChatModule } from "./chat/chat.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CommonModule } from "./common/common.module";
     AuthModule,
     CassetteModule,
     CommonModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],
